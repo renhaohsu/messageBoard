@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>掌中盛無線 剎那即永恆</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+ 	<style>
+		body {background-color:#111; width: 50%; margin: auto;padding: 0;}
+		p {color: #ddd; font-family: '微軟正黑體'; font-size: 20px;}
+		html {width: 100%; margin: 0;padding: 0; overflow-x: hidden;}
+		#show{color: rgba(66, 134, 244, 0.9); font-family: '微軟正黑體'; font-size: 20px;}
+
+		@media screen and (max-width: 800px) {
+			body {width: 90%;}
+		}
+
+	</style>
+	<script src="https://www.gstatic.com/firebasejs/5.0.4/firebase.js"></script>
+</head>
+<body>
+	<p><span style="color: rgba(66, 134, 244, 0.9);">a. </span>
+		<br>用他github上寫的函式 取得題目的文字敘述<br>
+ 		a-1. 
+ 		<br>如果那些只是有名字沒內容 考慮自己寫個名字一樣的函式來模擬 <br>
+ 		a-2. 
+ 		<br>題目可能要先從他給的dataset裡面切出來<br>
+ 	</p>
+ 	<br>
+ 	<p><span style="color: rgba(66, 134, 244, 0.9);">b. </span>
+ 		<br>從文字裡篩出食物名 顏色 口味 食材 (用regex) ex.草莓 酸甜 紅<br>
+ 		b-1. 
+ 		<br>也許可以找一個詞庫 或者自己輸入幾個詞當比對用的詞庫 (反正他說了食物才20+2個種類...才?)<br>
+ 		b-2. 
+ 		<br>得知被挖空部分要填啥 <br>
+
+ 	</p>
+ 	 	<br>
+ 	<p><span style="color: rgba(66, 134, 244, 0.9);">c. </span>
+ 		<br>從圖庫裡拿出東西 填上去<br>
+		c-1. 
+		<br>例如 food_img_datas.fruits.strawberry (亂掰的 懂就好)<br>
+		c-2. 
+		<br>拉出來的圖可能需要縮放 裁切 (JS的話我會 python要查一下)<br>
+		c-3. 
+		<br>除了主辦方github已經給的資料集 他提示了其他的開放資料如Food-101 Dataset、UECFOOD-100 Dataset 要是這些派不上用場<br>
+		c-4. 
+		<br>就去研究一下google search api 看看能不能用搜尋到的前幾個圖來代替<br>
+		c-5. 
+		<br>再不行就研究一下怎麼爬蟲 然後自己弄一個輕量型的圖庫來<br>
+ 	</p>
+ 	 	<br>
+ 	<p><span style="color: rgba(66, 134, 244, 0.9);">d. </span>
+ 		<br>用他github上寫的函式 把產生的圖片傳回去 <br>
+		d-1. 
+		<br>如果那些只是有名字沒內容 考慮自己寫個名字一樣的函式來模擬<br>
+		d-2. 
+		<br>還沒開始 所以應該是沒地方能傳 考慮自己寫一個網頁來模擬收到圖並展示<br>
+ 	
+ 	</p>
+ 	 	<br>
+ 	<p>
+ 	</p>
+ 	 	<br>
+
+
+
+	<div id="im">
+		<div id="input" class="forName">
+			<span style="color: rgba(134, 66, 244, 0.9);"> 姓名：</span><input id="UserName" placeholder="你的名字"><br/>
+		</div>
+		<div id="input">
+			<div>
+				
+				<span style="color: rgba(134, 66, 244, 0.9);">內容：</span><input id="UserContent" placeholder="想說的話"><br/>
+			</div>
+			<button id="btn">傳訊息 啥css都沒給的預設樣式好醜</button>
+		</div>
+		<div id="show"></div>
+	</div>
+
+<script>
+var firebase;
+var config = {
+  databaseURL: "https://chatroomtestinggg.firebaseio.com/"
+};
+firebase.initializeApp(config);
+
+var database = firebase.database().ref('/123/');
+
+
+var UserName = document.getElementById('UserName');
+var UserContent = document.getElementById('UserContent');
+var btn = document.getElementById('btn');
+
+btn.addEventListener('click', write, false);
+
+var ms = new Date().getTime()
+
+function write(){
+	var date = new Date();
+ 	var h = date.getHours();
+  	var m = date.getMinutes();
+  	var s = date.getSeconds();
+  	if(h<10){
+    	h = '0'+h;
+  	}
+  	if(m<10){
+    	m = '0' + m;
+  	}
+  	if(s<10){
+    	s = '0' + s;
+  	}
+  	var now = h+':'+m+':'+s;  //獲取按下按鈕或 enter 的當下時間
+
+
+    var UserPostData = {
+      name: UserName.value,
+      content: UserContent.value,
+      time: now,
+      id: 'id' + ms
+    };
+    database.push(UserPostData);
+    UserContent.value = '';
+}
+
+
+//第一次載入資料庫時顯示所有內容
+database.once('value', function (snapshot) {
+	show.innerHTML = ('');
+	for (var i in snapshot.val()) {
+		show.innerHTML += `<div>
+    	  <div class="time" style="color: rgba(134, 66, 244, 0.9);"> ${snapshot.val()[i].time} </div>
+	 	  <div class="name" style="color: rgba(134, 66, 244, 0.9);">：</div>
+		  <div class="content"></div>
+    	</div>`
+
+    show.lastElementChild.children[1].innerText = snapshot.val()[i].name +':';
+	  show.lastElementChild.children[2].innerText = snapshot.val()[i].content;
+	
+	}	
+	
+})
+
+//每一次資料庫有變動時，獲取最新一筆內容呈現
+database.limitToLast(1).on('value', function (snapshot) {
+  for (var i in snapshot.val()) {
+    show.innerHTML += `<div class="${snapshot.val()[i].id}">
+          <div class="time" style="color: rgba(134, 66, 244, 0.9);"> ${snapshot.val()[i].time} </div>
+        <div class="name" style="color: rgba(134, 66, 244, 0.9);"></div>
+        <div class="content"></div>
+      </div>`;
+
+    show.lastElementChild.children[1].innerText = snapshot.val()[i].name +':';
+    show.lastElementChild.children[2].innerText = snapshot.val()[i].content;
+  }
+  //如果是自己發出去的文字，就移到右邊
+  let id_ms = document.getElementsByClassName('id'+ms);
+  for (var i = id_ms.length - 1; i >= 0; i--) {
+    id_ms[i].style.display = 'flex';
+    id_ms[i].style.alignItems = 'center';
+    id_ms[i].style.justifyContent = 'flex-end';
+}
+  // 透過網頁捲軸的操控，讓每次捲軸都能保持在最下方的位置
+  // show.scrollTop = show.scrollHeight;
+
+  
+});
+</script>
+</body>
+</html>
